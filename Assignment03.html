@@ -300,7 +300,8 @@ chr (2): abstract, term
 </section>
 <section id="observations" class="level2">
 <h2 class="anchored" data-anchor-id="observations">Observations:</h2>
-<p>Some of the overall top tokens (I can reason) are mentioned in association with others; for instance, “19” is likely written alongside COVID and “pre” is written alongside “exclampsia”. Similarly, when I group per search term, “pre” pops up again as the top token with preeclampsia, and “cancer” appears as the top token for the search term of prostate cancer. Likely these are appearing as the top tokens because they will always be included given that the abstracts are about these subjects. I can check that with ngrams:</p>
+<p>Overall, most of these tokens, though mentioned frequently, evidently are not very relevant to the search term other than that. We see that in “patients” being among the top 5 token for 4/5 of the search terms. Additionally, for all of the top search terms besides “meningitis”, the top token is part of the search terms itself (for meningitis, it is the second token).</p>
+<p>Additionally, many of the top tokens (I can reason) are mentioned in association with others to make a single phrase; for instance, “19” is likely written alongside COVID and “pre” is written alongside “exclampsia”. I can check that with ngrams:</p>
 <p>For “19”:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pubm <span class="sc">%&gt;%</span></span>
@@ -437,8 +438,8 @@ chr (2): abstract, term
 <span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(term)</span>
 <span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a> </span>
 <span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a> covtf<span class="ot">&lt;-</span> pubtf<span class="sc">%&gt;%</span> </span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term<span class="sc">==</span> <span class="st">"covid"</span>)</span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term<span class="sc">==</span> <span class="st">"covid"</span>) </span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a> cftf<span class="ot">&lt;-</span> pubtf<span class="sc">%&gt;%</span> </span>
 <span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term<span class="sc">==</span> <span class="st">"cystic fibrosis"</span>)</span>
 <span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a> </span>
@@ -512,51 +513,54 @@ chr (2): abstract, term
 5 prostate cancer prostate       3832 0.0312   1.61 0.0502 </code></pre>
 </div>
 </div>
-<p>I’m hoping I did this correctly, because it seems that the “most important” search-word combinations for each search term are:</p>
+<p>Top word-search term combos are below. I wasn’t sure how to fix this but my list is in ascending order sorry. I kept getting an error that I could not use a “function” when I tried to “arrange” by descending tf_idf.</p>
 <p>COVID:</p>
 <ol type="1">
-<li><em>Covid</em></li>
-<li><strong>pandemic</strong></li>
-<li>coronavirus</li>
-<li><strong>sars</strong></li>
 <li><strong>cov</strong></li>
+<li><strong>sars</strong></li>
+<li>coronavirus</li>
+<li><strong>pandemic</strong></li>
+<li><em>covid</em></li>
 </ol>
 <p>Cystic Fibrosis</p>
 <ol type="1">
-<li>cf</li>
-<li><em>fibrosis</em></li>
-<li><em>cystic</em></li>
-<li><strong>cftr</strong></li>
 <li><strong>sweat</strong></li>
+<li><strong>cftr</strong></li>
+<li><em>cystic</em></li>
+<li><em>fibrosis</em></li>
+<li>cf</li>
 </ol>
 <p>Meningitis</p>
 <ol type="1">
-<li><em>meningitis</em></li>
-<li><strong>meningeal</strong></li>
-<li>pachymeningitis</li>
+<li><strong>meninges</strong></li>
 <li><strong>csf</strong></li>
+<li>pachymeningitis</li>
+<li><strong>meningeal</strong></li>
+<li>meningitis</li>
 </ol>
-<p>PreEclampsia</p>
+<p>Preeclampsia</p>
 <ol type="1">
-<li><em>eclampsia</em></li>
-<li><em>preeclampsia</em></li>
-<li><strong>pregnancy</strong></li>
-<li><strong>maternal</strong></li>
 <li><strong>gestational</strong></li>
+<li>maternal</li>
+<li><strong>pregnancy</strong></li>
+<li><em>preeclampsia</em></li>
+<li><em>eclampsia</em></li>
 </ol>
 <p>Prostate Cancer</p>
 <ol type="1">
-<li><em>prostate</em></li>
-<li><strong>androgen</strong></li>
-<li><strong>psa</strong></li>
-<li><strong>prostatectomy</strong></li>
 <li><strong>castration</strong></li>
+<li><strong>prostatectomy</strong></li>
+<li><strong>psa</strong></li>
+<li><strong>androgen</strong></li>
+<li>prostate</li>
 </ol>
-<p>Some of the words (<strong>bolded</strong>) are actually relevant co-search terms for the subject (i.e.&nbsp;“sweat” and “cftr” to cystic fibrosis search term, which are both involved in the pathphys of cf). The top abstract result for each search term are “duh” terms that are contained in the search term itself (<em>italicized</em>). The rest fall somewhere in between.</p>
 </section>
-<section id="differences" class="level2">
-<h2 class="anchored" data-anchor-id="differences">Differences</h2>
-<p>The terms yielded from the TF-IDF analysis include more terms involved in the pathophys, diagnosis and treatment than what I saw with my initial token analysis. This makes sense since the TF-IDF score gives a weight to terms based both on how frequently they appear and on how specific they are to a document. For example, while the token analysis found words such as “prostate” “patients” and “cancer” to be most frequent, TF-IDF identified words such as “androgen” “psa” and “prostatectomy”, which are words more relevent to the subject, and involved in diagnosis and treatment.</p>
+<section id="observations-and-differences" class="level2">
+<h2 class="anchored" data-anchor-id="observations-and-differences">Observations and Differences</h2>
+<p>Some or most of the word-search term combos (<strong>bolded</strong>) are relevant co-search terms for the subject (i.e.&nbsp;“sweat” and “cftr” to cystic fibrosis search term, which are both involved in the pathphys of cf). Additionally, none of the words in the #1 spot by tf-idf are words included in the search term itself, as opposed to what was seen when we went off of token frequencies alone. The word-search terms results via TF-IDF are much more comprehensive than what we see with our initial token analysis. This makes sense since the TF-IDF score gives a weight to terms based both on how frequently they appear and on how specific they are to a document. For example, while the token analysis found words such as “prostate” “patients” and “cancer” to be most frequent, TF-IDF identified words such as “androgen” “psa” and “prostatectomy”, which are words more relevent to the subject, and involved in diagnosis and treatment.</p>
+</section>
+<section id="section" class="level2">
+<h2 class="anchored" data-anchor-id="section"></h2>
 </section>
 
 </main>

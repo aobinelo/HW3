@@ -96,7 +96,9 @@ PC
 
 ## Observations:
 
-Some of the overall top tokens (I can reason) are mentioned in association with others; for instance, "19" is likely written alongside COVID and "pre" is written alongside "exclampsia". Similarly, when I group per search term, "pre" pops up again as the top token with preeclampsia, and "cancer" appears as the top token for the search term of prostate cancer. Likely these are appearing as the top tokens because they will always be included given that the abstracts are about these subjects. I can check that with ngrams:
+Overall, most of these tokens, though mentioned frequently, evidently are not very relevant to the search term other than that. We see that in "patients" being among the top 5 token for 4/5 of the search terms. Additionally, for all of the top search terms besides "meningitis", the top token is part of the search terms itself (for meningitis, it is the second token).
+
+Additionally, many of the top tokens (I can reason) are mentioned in association with others to make a single phrase; for instance, "19" is likely written alongside COVID and "pre" is written alongside "exclampsia". I can check that with ngrams:
 
 For "19":
 
@@ -181,8 +183,8 @@ pubtf<- pubtf %>%
   arrange(term)
  
  covtf<- pubtf%>% 
-  filter(term== "covid")
- 
+  filter(term== "covid") 
+
  cftf<- pubtf%>% 
   filter(term== "cystic fibrosis")
  
@@ -206,49 +208,50 @@ pubtf<- pubtf %>%
  pctf
 ```
 
-I'm hoping I did this correctly, because it seems that the "most important" search-word combinations for each search term are:
+Top word-search term combos are below. I wasn't sure how to fix this but my list is in ascending order sorry. I kept getting an error that I could not use a "function" when I tried to "arrange" by descending tf_idf.
 
 COVID:
 
-1.  *Covid*
-2.  **pandemic**
+1.  **cov**
+2.  **sars**
 3.  coronavirus
-4.  **sars**
-5.  **cov**
+4.  **pandemic**
+5.  *covid*
 
 Cystic Fibrosis
 
-1.  cf
-2.  *fibrosis*
+1.  **sweat**
+2.  **cftr**
 3.  *cystic*
-4.  **cftr**
-5.  **sweat**
+4.  *fibrosis*
+5.  cf
 
 Meningitis
 
-1.  *meningitis*
-2.  **meningeal**
+1.  **meninges**
+2.  **csf**
 3.  pachymeningitis
-4.  **csf**
+4.  **meningeal**
+5.  meningitis
 
-PreEclampsia
+Preeclampsia
 
-1.  *eclampsia*
-2.  *preeclampsia*
+1.  **gestational**
+2.  maternal
 3.  **pregnancy**
-4.  **maternal**
-5.  **gestational**
+4.  *preeclampsia*
+5.  *eclampsia*
 
 Prostate Cancer
 
-1.  *prostate*
-2.  **androgen**
+1.  **castration**
+2.  **prostatectomy**
 3.  **psa**
-4.  **prostatectomy**
-5.  **castration**
+4.  **androgen**
+5.  prostate
 
-Some of the words (**bolded**) are actually relevant co-search terms for the subject (i.e. "sweat" and "cftr" to cystic fibrosis search term, which are both involved in the pathphys of cf). The top abstract result for each search term are "duh" terms that are contained in the search term itself (*italicized*). The rest fall somewhere in between.
+## Observations and Differences
 
-## Differences
+Some or most of the word-search term combos (**bolded**) are relevant co-search terms for the subject (i.e. "sweat" and "cftr" to cystic fibrosis search term, which are both involved in the pathphys of cf). Additionally, none of the words in the #1 spot by tf-idf are words included in the search term itself, as opposed to what was seen when we went off of token frequencies alone. The word-search terms results via TF-IDF are much more comprehensive than what we see with our initial token analysis. This makes sense since the TF-IDF score gives a weight to terms based both on how frequently they appear and on how specific they are to a document. For example, while the token analysis found words such as "prostate" "patients" and "cancer" to be most frequent, TF-IDF identified words such as "androgen" "psa" and "prostatectomy", which are words more relevent to the subject, and involved in diagnosis and treatment.
 
-The terms yielded from the TF-IDF analysis include more terms involved in the pathophys, diagnosis and treatment than what I saw with my initial token analysis. This makes sense since the TF-IDF score gives a weight to terms based both on how frequently they appear and on how specific they are to a document. For example, while the token analysis found words such as "prostate" "patients" and "cancer" to be most frequent, TF-IDF identified words such as "androgen" "psa" and "prostatectomy", which are words more relevent to the subject, and involved in diagnosis and treatment.
+## 
