@@ -2,6 +2,7 @@
 title: "Assigment 03"
 format: html
 editor: visual
+author: Adaeze Obinelo
 ---
 
 ## Uploading file:
@@ -67,9 +68,30 @@ pub5 <-pubcount %>%
   top_n(5,n) %>% 
   arrange(term)
 
-pub5
+Cov <- pub5 %>% 
+  filter(term== "covid")
   
-  
+ cd <- pub5 %>% 
+  filter(term== "cystic fibrosis")
+
+ pc <- pub5 %>% 
+  filter(term== "preeclampsia")
+
+ mng<- pub5 %>% 
+  filter(term== "meningitis")
+
+ PC<- pub5 %>% 
+  filter(term== "prostate cancer")
+ 
+Cov
+
+cd
+
+pc
+
+mng
+
+PC
 ```
 
 ## Observations:
@@ -158,7 +180,30 @@ pubtf<- pubtf %>%
   top_n(5, tf_idf) %>% 
   arrange(term)
  
-pubtf
+ covtf<- pubtf%>% 
+  filter(term== "covid")
+ 
+ cftf<- pubtf%>% 
+  filter(term== "cystic fibrosis")
+ 
+ petf<- pubtf%>% 
+  filter(term== "preeclampsia")
+ 
+ mngtf<- pubtf%>% 
+  filter(term== "meningitis")
+ 
+ pctf<- pubtf%>% 
+  filter(term== "prostate cancer")
+ 
+ covtf
+ 
+ cftf
+ 
+ petf
+ 
+ mngtf
+ 
+ pctf
 ```
 
 I'm hoping I did this correctly, because it seems that the "most important" search-word combinations for each search term are:
@@ -202,7 +247,7 @@ Prostate Cancer
 4.  **prostatectomy**
 5.  **castration**
 
-For some of the words ([underlined]{.underline}) these are actually relevant co-search terms for the subject (i.e. "sweat" and "cftr" to cystic fibrosis search term, which are both involved in the pathphys of cf). The top abstract result for each search term are "duh" terms that are contained in the search term itself (*italicized*). The rest fall somewhere in between.
+Some of the words (**bolded**) are actually relevant co-search terms for the subject (i.e. "sweat" and "cftr" to cystic fibrosis search term, which are both involved in the pathphys of cf). The top abstract result for each search term are "duh" terms that are contained in the search term itself (*italicized*). The rest fall somewhere in between.
 
 ## Differences
 
