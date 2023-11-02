@@ -1,0 +1,209 @@
+---
+title: "Assigment 03"
+format: html
+editor: visual
+---
+
+## Uploading file:
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(tidytext)
+library(ggplot2)
+
+```
+
+```{r}
+
+pub_url <- "https://github.com/USCbiostats/data-science-data/blob/master/03_pubmed/pubmed.csv"
+
+tmp <- "pubmed.csv"
+
+if (!file.exists(tmp)) {
+  download.file(
+    url      = mt_url,
+    destfile = tmp,
+    # method   = "libcurl", timeout = 1000 (you may need this option)
+  )
+}
+
+pubm <- read_csv("pubmed.csv")
+```
+
+Seems like I have all 3241 abstracts
+
+## 1. Un-nesting Tokens
+
+```{r}
+pubm %>%
+  unnest_tokens(token, abstract) %>% 
+  count (token, sort = TRUE) %>% 
+  top_n(20,n)
+```
+
+Top results are filler words such as "the" "of" "and", etc, so I'll remove them with the anti_join statements
+
+## Top Tokens Overall
+
+```{r}
+pubm %>%
+  unnest_tokens(token, abstract) %>%
+  anti_join(stop_words, by= c("token"="word")) %>% 
+  count (token, sort = TRUE)
+```
+
+## Top Tokens, Grouped by Search Term:
+
+```{r}
+pubcount <- pubm %>%
+  unnest_tokens(token, abstract) %>%
+  group_by(term, token) %>% 
+  anti_join(stop_words, by= c("token"="word")) %>% 
+  count (token, sort = TRUE)
+
+pub5 <-pubcount %>% 
+  group_by(term) %>% 
+  top_n(5,n) %>% 
+  arrange(term)
+
+pub5
+  
+  
+```
+
+## Observations:
+
+Some of the overall top tokens (I can reason) are mentioned in association with others; for instance, "19" is likely written alongside COVID and "pre" is written alongside "exclampsia". Similarly, when I group per search term, "pre" pops up again as the top token with preeclampsia, and "cancer" appears as the top token for the search term of prostate cancer. Likely these are appearing as the top tokens because they will always be included given that the abstracts are about these subjects. I can check that with ngrams:
+
+For "19":
+
+```{r}
+pubm %>%
+  unnest_ngrams(ngram, abstract, n = 2) %>% 
+  separate(ngram, into= c("word1", "word2"), sep= " ") %>% 
+  select(word1, word2, term) %>% 
+  group_by(term) %>% 
+  arrange(term) %>% 
+  filter(word2=="19"& term == "covid") 
+
+
+```
+
+Clearly, 19 appears most often behind COVID.
+
+For "pre"
+
+```{r}
+pubm %>%
+  unnest_ngrams(ngram, abstract, n = 2) %>% 
+  separate(ngram, into= c("word1", "word2"), sep= " ") %>% 
+  select(word1, word2, term) %>% 
+  group_by(term) %>% 
+  arrange(term) %>% 
+  filter(word1=="pre"& term =="preeclampsia") 
+```
+
+Similarly, "pre" appears most often in association with pre-ecclampsia in abstracts generated with preeclampsia as the search term.
+
+Since "pre" appears as a top toke overall also, I can check without selecting by term:
+
+```{r}
+pubm %>%
+  unnest_ngrams(ngram, abstract, n = 2) %>% 
+  separate(ngram, into= c("word1", "word2"), sep= " ") %>% 
+  select(word1, word2) %>% 
+  filter(word1=="pre") 
+```
+
+It appears I misled here, and it appears most overall as a modifier for other words (i.e. "existing" and "symptomatic").
+
+## 2. Tokenization using Bigrams
+
+Whoops did this above, but:
+
+```{r}
+pubm %>% 
+  unnest_ngrams(ngram, abstract, n = 2) %>%
+  count(ngram, sort = TRUE) %>% 
+  top_n(10,n)
+```
+
+Visualization of top bigrams using ggplot
+
+```{r}
+
+pubm %>% 
+  unnest_ngrams(ngram, abstract, n = 2) %>%
+  count(ngram, sort = TRUE) %>% 
+  top_n(10,n) %>% 
+  ggplot(aes(n,fct_reorder(ngram, n)))+
+  geom_col()+
+  ylab("Bigrams")
+  
+```
+
+## 3. Calculating TF-IDF value per each word-search combo:
+
+```{r}
+pubtf <- pubm %>%
+  unnest_tokens(text, abstract) %>% 
+  count(term, text) %>% 
+  bind_tf_idf(text, term, n) %>% 
+  arrange(tf_idf)
+  
+  
+pubtf<- pubtf %>% 
+  group_by(term) %>% 
+  top_n(5, tf_idf) %>% 
+  arrange(term)
+ 
+pubtf
+```
+
+I'm hoping I did this correctly, because it seems that the "most important" search-word combinations for each search term are:
+
+COVID:
+
+1.  *Covid*
+2.  **pandemic**
+3.  coronavirus
+4.  **sars**
+5.  **cov**
+
+Cystic Fibrosis
+
+1.  cf
+2.  *fibrosis*
+3.  *cystic*
+4.  **cftr**
+5.  **sweat**
+
+Meningitis
+
+1.  *meningitis*
+2.  **meningeal**
+3.  pachymeningitis
+4.  **csf**
+
+PreEclampsia
+
+1.  *eclampsia*
+2.  *preeclampsia*
+3.  **pregnancy**
+4.  **maternal**
+5.  **gestational**
+
+Prostate Cancer
+
+1.  *prostate*
+2.  **androgen**
+3.  **psa**
+4.  **prostatectomy**
+5.  **castration**
+
+For some of the words ([underlined]{.underline}) these are actually relevant co-search terms for the subject (i.e. "sweat" and "cftr" to cystic fibrosis search term, which are both involved in the pathphys of cf). The top abstract result for each search term are "duh" terms that are contained in the search term itself (*italicized*). The rest fall somewhere in between.
+
+## Differences
+
+The terms yielded from the TF-IDF analysis include more terms involved in the pathophys, diagnosis and treatment than what I saw with my initial token analysis. This makes sense since the TF-IDF score gives a weight to terms based both on how frequently they appear and on how specific they are to a document. For example, while the token analysis found words such as "prostate" "patients" and "cancer" to be most frequent, TF-IDF identified words such as "androgen" "psa" and "prostatectomy", which are words more relevent to the subject, and involved in diagnosis and treatment.
